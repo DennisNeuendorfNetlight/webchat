@@ -20,7 +20,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "29d5be4f8209711d8987"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "b7882a18f755b570eb03"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -667,7 +667,7 @@
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
 
 /******/ 	// Load entry module and return exports
-/******/ 	return hotCreateRequire(5)(__webpack_require__.s = 5);
+/******/ 	return hotCreateRequire(7)(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -677,58 +677,83 @@
 "use strict";
 
 exports.config = {
-    port: 3000
+    port: 4000
 };
 
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = require("bog");
+"use strict";
+
+var socketIo = __webpack_require__(6);
+exports.initializeWebSocket = function (server) {
+    var socketServer = socketIo.listen(server);
+    socketServer.on('connection', function (socket) {
+        // der Client ist verbunden
+        socket.emit('chat', { zeit: new Date(), text: 'Du bist nun mit dem Server verbunden!' });
+        // wenn ein Benutzer einen Text senden
+        socket.on('chat', function (data) {
+            // so wird dieser Text an alle anderen Benutzer gesendet
+            socketServer.emit('chat', { time: new Date(), name: data.name || 'Anonym', text: data.text });
+        });
+    });
+};
+
 
 /***/ }),
 /* 2 */
 /***/ (function(module, exports) {
 
-module.exports = require("express");
+module.exports = require("bog");
 
 /***/ }),
 /* 3 */
 /***/ (function(module, exports) {
 
-module.exports = require("http");
+module.exports = require("express");
 
 /***/ }),
 /* 4 */
 /***/ (function(module, exports) {
 
-module.exports = require("reflect-metadata");
+module.exports = require("http");
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports) {
+
+module.exports = require("reflect-metadata");
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = require("socket.io");
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-__webpack_require__(4);
+__webpack_require__(5);
 process.env.NODE_ENV = process.env.NODE_ENV || 'localhost';
-var express = __webpack_require__(2);
-var http = __webpack_require__(3);
-var log = __webpack_require__(1);
+var express = __webpack_require__(3);
+var http = __webpack_require__(4);
+var log = __webpack_require__(2);
 var config_1 = __webpack_require__(0);
 var app = express();
-//import { setupApp } from './express';
-//import { setupRoutes } from './routes';
-var port = process.env.PORT || 3000;
+var websocket_1 = __webpack_require__(1);
+var port = config_1.config.port || process.env.PORT || 3000;
 var server = http.createServer(app).listen(port);
 log.level('debug');
-//setupApp(app);
-//setupRoutes(app);
+websocket_1.initializeWebSocket(server);
 // Start server
-server.listen(config_1.config.port, function () {
-    log.info('Express server listening on PORT:', config_1.config.port, 'in', app.get('env'), 'mode');
-});
+//server.listen(port, function () {
+log.info('Express server listening on PORT:', port, 'in', app.get('env'), 'mode');
+//});
 // Expose app
 exports = module.exports = app;
 

@@ -1,6 +1,6 @@
 import * as socketIo from 'socket.io';
 
-export const initialize = (server) => {
+export const initializeWebSocket = (server) => {
     const socketServer = socketIo.listen(server);
     socketServer.on('connection', socket => {
         // der Client ist verbunden
