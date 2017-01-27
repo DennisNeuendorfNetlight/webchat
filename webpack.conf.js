@@ -1,13 +1,13 @@
 var webpack = require('webpack');
+var webpackMerge = require('webpack-merge');
 var path = require('path');
 var LiveReloadPlugin = require('webpack-livereload-plugin');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var TsConfigPathsPlugin = require('awesome-typescript-loader').TsConfigPathsPlugin;
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var serverConfig = {
   resolve: {
-    root: path.join(__dirname, '/backend'),    
-    extensions: ['', '.ts', '.js']
+    modules: [path.join(__dirname, '/backend'), path.join(__dirname, '/node_modules')],
+    extensions: ['.ts', '.js']
   },
   module: {
     loaders: [
@@ -18,7 +18,6 @@ var serverConfig = {
     ]
   },
   plugins: [
-    new webpack.optimize.OccurenceOrderPlugin(true),
     new LiveReloadPlugin(),
     new webpack.HotModuleReplacementPlugin()
   ],
@@ -50,4 +49,6 @@ function checkNodeImport(context, request, cb) {
   cb();
 }
 
-module.exports = serverConfig;
+module.exports = [
+  serverConfig
+]
