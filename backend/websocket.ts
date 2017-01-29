@@ -1,7 +1,7 @@
 import * as socketIo from 'socket.io';
 import * as _ from 'lodash';
 
-const sessions = [];
+//const sessions = [];
 const users = {};
 
 export const initializeWebSocket = (server) => {
@@ -9,12 +9,13 @@ export const initializeWebSocket = (server) => {
     socketServer.on('connection', socket => {
         // socket answer, when connection is established
         //socket.emit('connect', { time: new Date(), text: 'Connected to Server!' });
-        sessions.push(socket);
+        //sessions.push(socket);
         socket.emit('session',{sessionId: socket.id});
         // socket broadcast
         socket.on('chat', (data) => {
             console.log('chat', data);
-            let session = data.recipient && users[data.recipient] && sessions[users[data.recipient]];
+            let session = data.recipient && users[data.recipient] && socketServer.sockets.connected[users[data.recipient].sessionId];
+            console.log('sessionID',users[data.recipient].sessionId);
             if(session){
                 session.emit('chat', data);
             }
@@ -24,7 +25,6 @@ export const initializeWebSocket = (server) => {
         });
 
         socket.on('register', (data) => {
-            console.log('register', data);
             if(data && data.username){
                 users[data.username] = data;
                 socket.emit('clients', _.values(users));
