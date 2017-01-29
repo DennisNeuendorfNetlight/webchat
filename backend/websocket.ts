@@ -1,7 +1,21 @@
 import * as socketIo from 'socket.io';
 import * as _ from 'lodash';
 
-const users = {};
+let users = {};
+
+function cleanUsers(socketServer){
+    var newUsers = {};
+    for (var key in users) {
+        if (users.hasOwnProperty(key)) {
+            let session = socketServer.sockets.connected[users[key].sessionId];
+            if(session) {
+                newUsers[key]=users[key];
+            }
+        }
+    }
+    console.log('newUsers', newUsers);
+    users = newUsers;
+};
 
 export const initializeWebSocket = (server) => {
     const socketServer = socketIo.listen(server);
@@ -13,9 +27,11 @@ export const initializeWebSocket = (server) => {
         socket.on('register', (data) => {
             if(data && data.username){
                 users[data.username] = data;
-                socket.emit('clients', _.values(users));
+                cleanUsers(socketServer);
+
+                socketServer.emit('clients', _.values(users));
             }
-        });
+        });        
 
         //send chat-message to recipient
         socket.on('chat', (data) => {
@@ -33,7 +49,5 @@ export const initializeWebSocket = (server) => {
                 }
             }       
         });
-
-        
     });
 }
