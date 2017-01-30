@@ -36,6 +36,7 @@ export const initializeWebSocket = (server) => {
         //send chat-message to recipient
         socket.on('chat', (data) => {
             //resolve recipients-session
+            console.log('chat',data);
             let session = data.recipient && users[data.recipient] && socketServer.sockets.connected[users[data.recipient].sessionId];
             if(session){
                 session.emit('chat', data);
